@@ -332,6 +332,40 @@ function renderPost(doc) {
 }
 
 /**
+ * Format a post date for index display.
+ * 
+ * @param {string|Date} value - Date from frontmatter.
+ * @returns {string} Formatted date like "Sat Dec 27 '25".
+ */
+function formatPostDate(value) {
+    if (!value) return '';
+
+    let date;
+    if (value instanceof Date) {
+        date = value;
+    } else {
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) {
+            return String(value);
+        }
+        date = parsed;
+    }
+
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const weekday = weekdays[date.getDay()] || '';
+    const month = months[date.getMonth()] || '';
+    const day = date.getDate();
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${weekday} ${month} ${day} '${year}`.trim();
+}
+
+/**
  * Render the index page with a list of all posts.
  * 
  * @param {Array} posts - Array of document objects
@@ -364,7 +398,14 @@ function renderIndex(posts) {
     // Generate list items for each post
     // Links are now directory-based (no .html extension needed)
     const postListHtml = sortedPosts
-        .map(post => `  <li><a href="posts/${post.slug}/">${post.title}</a></li>`)
+        .map(post => {
+            const formattedDate = formatPostDate(post.date);
+            const dateHtml = formattedDate
+                ? `<span class="post-date">${formattedDate}</span>`
+                : '<span class="post-date"></span>';
+            const titleHtml = `<a href="posts/${post.slug}/">${post.title}</a>`;
+            return `  <li class="post-list-item">${dateHtml}${titleHtml}</li>`;
+        })
         .join('\n');
 
     // Fill in templates

@@ -157,6 +157,24 @@ main {
     font-weight: 400;
 }
 
+.blog-list .post-list-item {
+    display: grid;
+    grid-template-columns: minmax(6rem, auto) 1fr;
+    gap: 1rem;
+    align-items: baseline;
+}
+
+.blog-list .post-list-item a {
+    justify-self: start;
+}
+
+.post-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: right;
+    white-space: nowrap;
+}
+
 .fixed-footer {
     position: fixed;
     left: auto;
@@ -214,6 +232,14 @@ main {
     .back-arrow {
         position: static;
         margin-bottom: 1rem;
+    }
+
+    .blog-list .post-list-item {
+        grid-template-columns: 1fr;
+    }
+
+    .post-date {
+        text-align: left;
     }
 }
 
