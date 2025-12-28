@@ -449,10 +449,15 @@ function renderAbout() {
         content: aboutDoc.body
     });
 
-    // On the about page, change the footer link from "About" to "Back to Notes"
+    // On the about page, switch the footer to a subtle back arrow placed before the name.
+    const footerReplacement =
+        '<div class="fixed-footer">' +
+        '<a href="/index.html" class="footer-back-arrow" aria-label="Back to notes"></a>' +
+        '<span>&copy; Canaan McKenzie</span>' +
+        '</div>';
     const baseWithModifiedFooter = baseTemplate.replace(
-        '<a href="about.html">About</a>',
-        '<a href="index.html">Back to Notes</a>'
+        /<div class="fixed-footer">[\s\S]*?<\/div>/,
+        footerReplacement
     );
 
     return renderTemplate(baseWithModifiedFooter, {
@@ -606,6 +611,10 @@ function buildSite() {
     copyFile(
         path.join(THEME_DIR, 'script.js'),
         path.join(PUBLIC_DIR, 'script.js')
+    );
+    copyFile(
+        path.join(THEME_DIR, 'favicon.svg'),
+        path.join(PUBLIC_DIR, 'favicon.svg')
     );
 
     console.log('\n' + '='.repeat(60));

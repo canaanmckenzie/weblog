@@ -200,6 +200,21 @@ main {
     opacity: 0.9;
 }
 
+.fixed-footer .footer-back-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 22px;
+    background-image: none !important;
+    padding-bottom: 0;
+    opacity: 0.7;
+}
+
+.fixed-footer .footer-back-arrow canvas {
+    display: block;
+}
+
 .post-page {
     min-height: 100vh;
     display: flex;
@@ -228,12 +243,14 @@ main {
     display: block;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
     .back-arrow {
         position: static;
         margin-bottom: 1rem;
     }
+}
 
+@media (max-width: 720px) {
     .blog-list .post-list-item {
         grid-template-columns: 1fr;
     }

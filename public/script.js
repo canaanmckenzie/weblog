@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. [data-footnote-ref]: Footnote numbers in text (marked-footnote uses data attribs)
     // 4. [data-footnote-backref]: Back arrows in footer
     const links = document.querySelectorAll(`
-      a:not(.nav-logo):not(.back-arrow):not([data-footnote-ref]):not([data-footnote-backref])
+      a:not(.nav-logo):not(.back-arrow):not(.footer-back-arrow):not([data-footnote-ref]):not([data-footnote-backref])
     `);
 
     links.forEach((link, index) => {
@@ -320,5 +320,59 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.querySelectorAll('.back-arrow').forEach(drawBackArrow);
+
+  const drawFooterBackArrow = (el) => {
+    if (el.querySelector('canvas')) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 70;
+    canvas.height = 28;
+    el.prepend(canvas);
+
+    const y = 14 + (Math.random() * 4 - 2);
+    const x1 = 8 + (Math.random() * 4 - 2);
+    const x2 = 62 + (Math.random() * 4 - 2);
+
+    if (typeof rough !== 'undefined') {
+      const rc = rough.canvas(canvas);
+      rc.line(x2, y, x1, y, {
+        stroke: '#888',
+        strokeWidth: 2,
+        roughness: 2.2,
+        bowing: 1.4
+      });
+      rc.line(x1, y, x1 + 8, y - 6, {
+        stroke: '#888',
+        strokeWidth: 2,
+        roughness: 2.2,
+        bowing: 1.4
+      });
+      rc.line(x1, y, x1 + 8, y + 6, {
+        stroke: '#888',
+        strokeWidth: 2,
+        roughness: 2.2,
+        bowing: 1.4
+      });
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+
+    const jitter = () => (Math.random() * 1.2 - 0.6);
+    ctx.beginPath();
+    ctx.moveTo(x2 + jitter(), y + jitter());
+    ctx.lineTo(x1 + jitter(), y + jitter());
+    ctx.lineTo(x1 + 8 + jitter(), y - 6 + jitter());
+    ctx.moveTo(x1 + jitter(), y + jitter());
+    ctx.lineTo(x1 + 8 + jitter(), y + 6 + jitter());
+    ctx.stroke();
+  };
+
+  document.querySelectorAll('.footer-back-arrow').forEach(drawFooterBackArrow);
 
 });
