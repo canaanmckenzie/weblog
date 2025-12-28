@@ -1,0 +1,31 @@
+<!-- 
+404 ERROR PAGE
+Simple, helpful, and on-brand error page.
+-->
+<div class="post-wrapper" style="text-align: center; padding-top: 4rem;">
+    <h1 style="font-size: 4rem; margin-bottom: 1rem;">404</h1>
+    <div id="icon-404" style="margin: 2rem auto;"></div>
+    <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+        It seems you've wandered off the path.
+    </p>
+    <a href="/" style="font-size: 1.1rem;">Return to the Garden</a>
+</div>
+
+<script>
+    // Draw a confused squiggle icon if rough.js is available
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof rough !== 'undefined') {
+            const container = document.getElementById('icon-404');
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            container.appendChild(canvas);
+
+            const rc = rough.canvas(canvas);
+            // specific sketchy 404 art
+            rc.circle(50, 50, 80, { roughness: 2.5, stroke: '#333', strokeWidth: 2 });
+            rc.line(30, 30, 70, 70, { roughness: 2, stroke: '#333' });
+            rc.line(70, 30, 30, 70, { roughness: 2, stroke: '#333' });
+        }
+    });
+</script>

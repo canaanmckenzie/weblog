@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>Writing Theory and the Blue-Collar Life of Attention</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="A note on writing theory and attention.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
+-->
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Writing Theory and the Blue-Collar Life of Attention</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    Jan 07, 2025 · A note from the desk of a tired but hopeful writing coach.
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <p>A lot of writing theory gets described like its a set of sleek levers, a kind of white-board physics for prose, but what I see, at 2 a.m., is more like a factory shift. Attention is a working-class resource: it clocks in late, it takes smoke breaks, it gets injured on the job. The theory that is most humane is the theory that admits this and builds the sentence as a workplace with safety rails.</p>
+<p>When a paragraph gives you a place to stand, to look, to breathe, it is not being precious; it is paying wages. A sentence that runs too long is not a sin, but it does require that the reader has the endurance to keep lifting. The tools of theory are less like laws and more like union contracts: the agreements by which writer and reader do not exploit one another.</p>
+<p>So the cliché of clarity, which sounds like some antiseptic policy memo, is actually a kindness. It is a refusal to make the reader do extra labor just to locate the verb. You can still be weird, still be angular, still be honest about how the mind jerks around; you just don&#39;t leave the reader alone in the dark with a flashlight that has no batteries.</p>
+<p>There is a way to write that feels like supervision, like the author staring over your shoulder. The better theory is a foreman who knows your name and lets you pick the music. It trusts you to make sense, and it leaves you a map.</p>
+<p>Footnote: the map is not the territory. But if you keep telling yourself that, you end up with a territory that only you can navigate, which is how writing starts to smell like vanity. And if the theory is about anything at all, its about keeping the smell down.<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup></p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>I mean &quot;smell&quot; as in ego, not as in your actual room, which, if you are like me, is full of cold coffee and the faint sadness of old drafts. <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+</ol>
+</section>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

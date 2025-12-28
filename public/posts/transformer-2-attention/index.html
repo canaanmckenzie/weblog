@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>Attention, Please</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="A deep dive into the self-attention mechanism, with math and Python code.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+  <!-- MathJax for LaTeX equations -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
+-->
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Attention, Please</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    Part 2 of 4 · The mathematics of giving a damn
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <p>Okay. So. Attention. In the previous installment we talked around the thing, gestured at its shape, promised that the math would come later. Well, later is now<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup>.</p>
+<p>The core idea of self-attention is this: given a sequence of vectors (representing words or tokens or whatever), we want to compute a new sequence of vectors where each position is a weighted combination of <em>all</em> positions in the input. The weights—how much each position contributes—are determined by a learned compatibility function between positions.</p>
+<h2>The Three Projections: Query, Key, Value</h2>
+<p>Let&#39;s say we have an input sequence $X$ of shape $(n, d)$—that&#39;s $n$ positions, each represented by a $d$-dimensional vector<sup><a id="footnote-ref-2" href="#footnote-2" data-footnote-ref aria-describedby="footnote-label">2</a></sup>. The first thing we do is project $X$ into three different spaces:</p>
+<p>$$Q = XW_Q, \quad K = XW_K, \quad V = XW_V$$</p>
+<p>Here $W_Q$, $W_K$, and $W_V$ are learned weight matrices, each of shape $(d, d_k)$ where $d_k$ is the dimension of our key/query space (often $d_k = d / h$ where $h$ is the number of attention heads, but we&#39;ll get to that). The names come from a database analogy:</p>
+<ul>
+<li><strong>Query</strong>: &quot;What am I looking for?&quot;</li>
+<li><strong>Key</strong>: &quot;What do I have to offer?&quot;</li>
+<li><strong>Value</strong>: &quot;If you&#39;re interested, here&#39;s what I&#39;ll give you.&quot;</li>
+</ul>
+<p>Each position broadcasts a Query (&quot;I&#39;m looking for something&quot;) and a Key (&quot;Here&#39;s my identifier&quot;), and the compatibility between a Query at position $i$ and a Key at position $j$ determines how much of position $j$&#39;s Value gets mixed into position $i$&#39;s output.</p>
+<h2>The Compatibility Score</h2>
+<p>How do we measure compatibility? The transformer uses the simplest possible thing: a dot product. The Query at position $i$ is a vector; the Key at position $j$ is a vector; we take their dot product. High dot product means &quot;these vectors point in similar directions,&quot; which we interpret as &quot;these positions are relevant to each other.&quot;</p>
+<p>But here&#39;s the thing: dot products can get very large when the vectors are high-dimensional. If $Q$ and $K$ both have entries drawn from a distribution with variance 1, then the dot product $Q \cdot K$ has variance proportional to $d_k$. Large values going into a softmax get pushed toward 0 or 1, which makes gradients very small (this is called saturation). So we scale:</p>
+<p>$$\text{score}(Q, K) = \frac{QK^T}{\sqrt{d_k}}$$</p>
+<p>That $\sqrt{d_k}$ keeps the variance of the scores approximately constant regardless of the dimension. It&#39;s a small thing, but the kind of small thing that determines whether training actually converges<sup><a id="footnote-ref-3" href="#footnote-3" data-footnote-ref aria-describedby="footnote-label">3</a></sup>.</p>
+<h2>From Scores to Weights: Softmax</h2>
+<p>We now have an $n \times n$ matrix of compatibility scores. Each row represents one position&#39;s Query; each column represents one position&#39;s Key. The score at row $i$, column $j$ is how much position $i$&#39;s Query likes position $j$&#39;s Key.</p>
+<p>But scores aren&#39;t weights. Weights need to sum to 1 (so we get a proper weighted average) and be non-negative (so we don&#39;t accidentally subtract information). The softmax function gives us exactly this:</p>
+<p>$$\text{Attention Weights} = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)$$</p>
+<p>The softmax is applied row-wise: for each Query position, we get a probability distribution over all Key positions. These probabilities tell us how to weight the Values.</p>
+<h2>Computing the Output</h2>
+<p>Now we just multiply the attention weights (an $n \times n$ matrix) by the Values (an $n \times d_v$ matrix):</p>
+<p>$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$</p>
+<p>Each row of the output is a weighted combination of all the Value vectors, where the weights come from the softmax of compatibility scores. That&#39;s it. That&#39;s the core of self-attention.</p>
+<h2>Let&#39;s Build It in Python</h2>
+<p>Enough abstraction. Here&#39;s a minimal implementation of scaled dot-product attention in NumPy:</p>
+<pre><code class="language-python">import numpy as np
+
+def softmax(x, axis=-1):
+    """Numerically stable softmax."""
+    exp_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
+    return exp_x / np.sum(exp_x, axis=axis, keepdims=True)
+
+def scaled_dot_product_attention(Q, K, V):
+    """
+    Compute scaled dot-product attention.
+    
+    Args:
+        Q: Queries, shape (n, d_k)
+        K: Keys, shape (n, d_k)  
+        V: Values, shape (n, d_v)
+    
+    Returns:
+        Output, shape (n, d_v)
+        Attention weights, shape (n, n)
+    """
+    d_k = Q.shape[-1]
+    
+    # Compute compatibility scores
+    scores = Q @ K.T / np.sqrt(d_k)
+    
+    # Convert to probability distribution
+    attention_weights = softmax(scores)
+    
+    # Weighted combination of values
+    output = attention_weights @ V
+    
+    return output, attention_weights</code></pre>
+<p>Let&#39;s test it with a tiny example—a 4-word sentence where each word is represented by a 3-dimensional vector:</p>
+<pre><code class="language-python"># Fake embeddings for: ["The", "cat", "sat", "down"]
+X = np.array([
+    [1.0, 0.0, 0.0],   # The
+    [0.0, 1.0, 0.2],   # cat  
+    [0.1, 0.2, 1.0],   # sat
+    [0.0, 0.0, 1.0],   # down
+])
+
+# In practice these are learned; here we just use identity
+W_Q = W_K = W_V = np.eye(3)
+
+Q = X @ W_Q
+K = X @ W_K
+V = X @ W_V
+
+output, weights = scaled_dot_product_attention(Q, K, V)
+
+print("Attention weights:")
+print(np.round(weights, 2))
+# Each row shows how much each position attends to others</code></pre>
+<p>When you run this, you&#39;ll see that each row of the attention weights sums to 1, and positions with similar embeddings (like &quot;sat&quot; and &quot;down,&quot; which both have high values in the third dimension) will attend more strongly to each other<sup><a id="footnote-ref-4" href="#footnote-4" data-footnote-ref aria-describedby="footnote-label">4</a></sup>.</p>
+<h2>Multi-Head Attention: Why One Is Not Enough</h2>
+<p>Real transformers don&#39;t use just one attention computation—they use several in parallel, called &quot;heads.&quot; Each head has its own $W_Q$, $W_K$, $W_V$ matrices. The intuition is that different heads can learn to attend to different things: one head might focus on syntactic relationships, another on semantic similarity, another on positional patterns.</p>
+<p>The outputs of all heads are concatenated and then projected back down to the model dimension:</p>
+<p>$$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W_O$$</p>
+<p>where each $\text{head}_i = \text{Attention}(XW_Q^i, XW_K^i, XW_V^i)$.</p>
+<p>We&#39;ll implement this fully in Part 3 when we build the complete transformer architecture. For now, just know that more heads generally means more expressive power, up to a point<sup><a id="footnote-ref-5" href="#footnote-5" data-footnote-ref aria-describedby="footnote-label">5</a></sup>.</p>
+<h2>What Have We Learned?</h2>
+<p>Self-attention is a mechanism that:</p>
+<ul>
+<li>Projects inputs into Query, Key, and Value representations</li>
+<li>Computes compatibility between positions via scaled dot products</li>
+<li>Uses softmax to convert scores to weights</li>
+<li>Produces outputs that are weighted combinations of Values</li>
+</ul>
+<p>In the next part, we&#39;ll zoom out and see where attention fits into the larger transformer architecture: positional encodings, layer normalization, residual connections, and the feed-forward networks that sit between attention layers. Stay attentive.</p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>There&#39;s a pedagogical question about whether to show the math first and then build intuition, or to build intuition first and then show the math. I have chosen the latter, mostly because that&#39;s how I actually learned it, but partly because starting with equations tends to trigger a certain kind of survival-mode skimming that is not conducive to actual understanding. If you are a math-first person, I apologize for making you wait. <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>In practice, these vectors are embeddings—learned representations where semantically similar words end up close together in the high-dimensional space. The dimension $d$ is usually something like 512 or 768 or 1024. GPT-3 uses 12,288, which is absurd but apparently necessary when you have 175 billion parameters to fill. <a href="#footnote-ref-2" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
+</li>
+<li id="footnote-3">
+<p>The original paper describes this scaling as &quot;preventing the dot products from growing large in magnitude, which would push the softmax function into regions where it has extremely small gradients.&quot; This is the kind of sentence that makes perfect sense once you know what all the words mean and no sense at all before that. Gradient-based training is very sensitive to the scale of numbers flowing through the network. Too big and things explode; too small and things vanish. The whole art of modern deep learning is keeping everything in a Goldilocks zone. <a href="#footnote-ref-3" data-footnote-backref aria-label="Back to reference 3">↩</a></p>
+</li>
+<li id="footnote-4">
+<p>This is a somewhat circular demonstration since we&#39;re using the input embeddings directly as Q, K, V (with identity projection matrices). In a real network, the learned projections would create much richer and more interesting attention patterns. But you have to start somewhere. <a href="#footnote-ref-4" data-footnote-backref aria-label="Back to reference 4">↩</a></p>
+</li>
+<li id="footnote-5">
+<p>The original transformer used 8 heads. BERT uses 12. GPT-3 uses 96. There&#39;s no theoretical answer for how many heads are optimal—it depends on the task, the model size, the data, and probably the phase of the moon. The general principle is that more heads allow more diverse attention patterns, but at some point you hit diminishing returns. Also, the total dimension (d_k × h) is typically kept constant, so more heads means smaller per-head dimensions, which has its own tradeoffs. <a href="#footnote-ref-5" data-footnote-backref aria-label="Back to reference 5">↩</a></p>
+</li>
+</ol>
+</section>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

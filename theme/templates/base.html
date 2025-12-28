@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>{{title}}</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="{{description}}">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  {{head_extra}}
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="{{body_class}}">
+    {{content}}
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

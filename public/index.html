@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>Ink Dreams - Notes</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="Notes and essays in a hand-drawn aesthetic.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="centered-list">
+    <!--
+BLOG LIST
+Uses .blog-list class for styling (no bullets, proper spacing)
+Each link gets a unique hand-drawn underline via script.js
+-->
+<ul class="blog-list">
+      <li><a href="posts/transformer-1-consider/">Consider the Transformer</a></li>
+  <li><a href="posts/transformer-2-attention/">Attention, Please</a></li>
+  <li><a href="posts/transformer-3-architecture/">The Architecture of Paying Attention</a></li>
+  <li><a href="posts/transformer-4-toy/">A Toy Example</a></li>
+  <li><a href="posts/ai-sincerity/">Sincerity, Automation, and the Terror of Ease</a></li>
+  <li><a href="posts/ai-attention/">Artificial Intelligence and the Economy of Attention</a></li>
+  <li><a href="posts/ai-politeness/">On the Politeness of Machines</a></li>
+  <li><a href="posts/writing-theory-attention/">Writing Theory and the Blue-Collar Life of Attention</a></li>
+  <li><a href="posts/writing-theory-voice/">Footnotes Toward a Theory of Voice</a></li>
+</ul>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

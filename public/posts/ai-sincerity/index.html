@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>Sincerity, Automation, and the Terror of Ease</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="A note on AI, convenience, and sincerity.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
+-->
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Sincerity, Automation, and the Terror of Ease</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    Jan 15, 2025 · A note on convenience and the cost of sounding human.
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <p>The real seduction of automation is not speed but relief. You hand off a task and with it you hand off the small private anxiety that you might not do it well. The machine writes the email, the paragraph, the apology, and you feel a quick hit of gratitude. The problem is that gratitude, for a machine, is a dead end.</p>
+<p>Sincerity is a form of effort. It is a practice of making the reader do as little interpretive work as possible, which is to say you do the work yourself. The more we automate the work, the more sincerity starts to look like a style rather than a discipline, and that is the beginning of a very deep kind of laziness.</p>
+<p>If the future is one in which machines can generate our tone for us, then the most radical thing you can do might be to speak in a way that is inefficient. To pause, to explain, to fail in public, to admit you are not sure. Those are human costs, and I think the costs are the point.</p>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

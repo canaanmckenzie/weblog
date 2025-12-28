@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>A Toy Example</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="A complete, working transformer implementation that learns to predict characters.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+  <!-- MathJax for LaTeX equations -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
+-->
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">A Toy Example</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    Part 4 of 4 · Learning to predict the next word, or: teaching a machine to dream in text
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <p>We have now arrived at the part where we stop waving our hands and actually build the thing. All of it. A complete transformer that takes characters as input and learns to predict what character comes next<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup>.</p>
+<p>The code that follows is intentionally simple. It uses only NumPy. It is not fast. It will not win any benchmarks. But you can read it, understand it, and run it yourself. That&#39;s the point.</p>
+<h2>The Complete Implementation</h2>
+<p>Here is a minimal, working character-level language model. I&#39;ll present it in sections, but it&#39;s a single coherent program.</p>
+<h3>Imports and Helpers</h3>
+<pre><code class="language-python">import numpy as np
+
+def softmax(x, axis=-1):
+    """Numerically stable softmax."""
+    exp_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
+    return exp_x / np.sum(exp_x, axis=axis, keepdims=True)
+
+def cross_entropy_loss(logits, targets):
+    """Cross-entropy loss for language modeling."""
+    probs = softmax(logits)
+    n = len(targets)
+    log_probs = -np.log(probs[np.arange(n), targets] + 1e-9)
+    return np.mean(log_probs)</code></pre>
+<h3>Multi-Head Attention</h3>
+<pre><code class="language-python">class MultiHeadAttention:
+    def __init__(self, d_model, n_heads):
+        self.n_heads = n_heads
+        self.d_head = d_model // n_heads
+        
+        # Projection matrices
+        scale = 0.02
+        self.W_Q = np.random.randn(d_model, d_model) * scale
+        self.W_K = np.random.randn(d_model, d_model) * scale
+        self.W_V = np.random.randn(d_model, d_model) * scale
+        self.W_O = np.random.randn(d_model, d_model) * scale
+    
+    def __call__(self, x, mask=None):
+        seq_len, d_model = x.shape
+        
+        # Project to Q, K, V
+        Q = x @ self.W_Q
+        K = x @ self.W_K
+        V = x @ self.W_V
+        
+        # Reshape for multi-head: (seq_len, n_heads, d_head)
+        Q = Q.reshape(seq_len, self.n_heads, self.d_head)
+        K = K.reshape(seq_len, self.n_heads, self.d_head)
+        V = V.reshape(seq_len, self.n_heads, self.d_head)
+        
+        # Compute attention for each head
+        outputs = []
+        for h in range(self.n_heads):
+            q, k, v = Q[:, h, :], K[:, h, :], V[:, h, :]
+            
+            # Scaled dot-product attention
+            scores = q @ k.T / np.sqrt(self.d_head)
+            
+            # Apply causal mask
+            if mask is not None:
+                scores = scores + mask
+            
+            weights = softmax(scores, axis=-1)
+            out = weights @ v
+            outputs.append(out)
+        
+        # Concatenate heads and project
+        concat = np.concatenate(outputs, axis=-1)
+        return concat @ self.W_O</code></pre>
+<h3>Feed-Forward and Layer Norm</h3>
+<pre><code class="language-python">class FeedForward:
+    def __init__(self, d_model, d_ff):
+        scale = 0.02
+        self.W1 = np.random.randn(d_model, d_ff) * scale
+        self.b1 = np.zeros(d_ff)
+        self.W2 = np.random.randn(d_ff, d_model) * scale
+        self.b2 = np.zeros(d_model)
+    
+    def __call__(self, x):
+        hidden = np.maximum(0, x @ self.W1 + self.b1)  # ReLU
+        return hidden @ self.W2 + self.b2
+
+class LayerNorm:
+    def __init__(self, d_model, eps=1e-6):
+        self.gamma = np.ones(d_model)
+        self.beta = np.zeros(d_model)
+        self.eps = eps
+    
+    def __call__(self, x):
+        mean = x.mean(axis=-1, keepdims=True)
+        std = x.std(axis=-1, keepdims=True)
+        return self.gamma * (x - mean) / (std + self.eps) + self.beta</code></pre>
+<h3>Transformer Block</h3>
+<pre><code class="language-python">class TransformerBlock:
+    def __init__(self, d_model, n_heads, d_ff):
+        self.attn = MultiHeadAttention(d_model, n_heads)
+        self.ffn = FeedForward(d_model, d_ff)
+        self.ln1 = LayerNorm(d_model)
+        self.ln2 = LayerNorm(d_model)
+    
+    def __call__(self, x, mask=None):
+        # Attention with residual
+        x = x + self.attn(self.ln1(x), mask)
+        # FFN with residual
+        x = x + self.ffn(self.ln2(x))
+        return x</code></pre>
+<h3>The Complete Model</h3>
+<pre><code class="language-python">class TinyTransformer:
+    def __init__(self, vocab_size, d_model=64, n_heads=4, d_ff=256, 
+                 n_layers=2, max_seq_len=128):
+        self.vocab_size = vocab_size
+        self.d_model = d_model
+        self.max_seq_len = max_seq_len
+        
+        # Embeddings
+        scale = 0.02
+        self.token_emb = np.random.randn(vocab_size, d_model) * scale
+        self.pos_emb = np.random.randn(max_seq_len, d_model) * scale
+        
+        # Transformer blocks
+        self.blocks = [
+            TransformerBlock(d_model, n_heads, d_ff)
+            for _ in range(n_layers)
+        ]
+        
+        # Output projection (tie with input embeddings for efficiency)
+        self.output_proj = self.token_emb.T  # shape: (d_model, vocab_size)
+    
+    def __call__(self, token_ids):
+        seq_len = len(token_ids)
+        
+        # Embed
+        x = self.token_emb[token_ids] + self.pos_emb[:seq_len]
+        
+        # Causal mask
+        mask = np.triu(np.full((seq_len, seq_len), -np.inf), k=1)
+        
+        # Forward through blocks
+        for block in self.blocks:
+            x = block(x, mask)
+        
+        # Project to logits
+        logits = x @ self.output_proj
+        return logits</code></pre>
+<h3>Training Loop</h3>
+<p>Now we need a way to train this thing. We&#39;ll use the simplest possible approach: numerical gradient estimation<sup><a id="footnote-ref-2" href="#footnote-2" data-footnote-ref aria-describedby="footnote-label">2</a></sup>. This is absurdly slow but requires no backpropagation code.</p>
+<pre><code class="language-python">def get_all_params(model):
+    """Collect all trainable parameters."""
+    params = []
+    params.append(('token_emb', model.token_emb))
+    params.append(('pos_emb', model.pos_emb))
+    for i, block in enumerate(model.blocks):
+        params.append((f'block{i}.attn.W_Q', block.attn.W_Q))
+        params.append((f'block{i}.attn.W_K', block.attn.W_K))
+        params.append((f'block{i}.attn.W_V', block.attn.W_V))
+        params.append((f'block{i}.attn.W_O', block.attn.W_O))
+        params.append((f'block{i}.ffn.W1', block.ffn.W1))
+        params.append((f'block{i}.ffn.b1', block.ffn.b1))
+        params.append((f'block{i}.ffn.W2', block.ffn.W2))
+        params.append((f'block{i}.ffn.b2', block.ffn.b2))
+        params.append((f'block{i}.ln1.gamma', block.ln1.gamma))
+        params.append((f'block{i}.ln1.beta', block.ln1.beta))
+        params.append((f'block{i}.ln2.gamma', block.ln2.gamma))
+        params.append((f'block{i}.ln2.beta', block.ln2.beta))
+    return params
+
+def train_step_numerical(model, x, y, lr=0.001, eps=1e-5):
+    """One training step using numerical gradients (very slow!)."""
+    params = get_all_params(model)
+    base_loss = cross_entropy_loss(model(x), y)
+    
+    for name, param in params:
+        flat = param.flatten()
+        grad = np.zeros_like(flat)
+        
+        # Sample a subset of parameters for speed
+        indices = np.random.choice(len(flat), min(10, len(flat)), replace=False)
+        
+        for i in indices:
+            old_val = flat[i]
+            flat[i] = old_val + eps
+            param[:] = flat.reshape(param.shape)
+            loss_plus = cross_entropy_loss(model(x), y)
+            flat[i] = old_val
+            param[:] = flat.reshape(param.shape)
+            grad[i] = (loss_plus - base_loss) / eps
+        
+        # Update only sampled parameters
+        flat[indices] -= lr * grad[indices]
+        param[:] = flat.reshape(param.shape)
+    
+    return base_loss</code></pre>
+<h3>Putting It All Together</h3>
+<pre><code class="language-python"># Training data: a simple repeated pattern
+text = "hello world! " * 100
+chars = sorted(set(text))
+char_to_idx = {c: i for i, c in enumerate(chars)}
+idx_to_char = {i: c for c, i in char_to_idx.items()}
+
+# Encode
+data = np.array([char_to_idx[c] for c in text])
+
+# Create model
+model = TinyTransformer(
+    vocab_size=len(chars),
+    d_model=32,
+    n_heads=2,
+    d_ff=64,
+    n_layers=1,
+    max_seq_len=32
+)
+
+# Train
+seq_len = 16
+for step in range(100):
+    # Random starting position
+    start = np.random.randint(0, len(data) - seq_len - 1)
+    x = data[start:start + seq_len]
+    y = data[start + 1:start + seq_len + 1]
+    
+    loss = train_step_numerical(model, x, y, lr=0.1)
+    
+    if step % 10 == 0:
+        print(f"Step {step}, Loss: {loss:.4f}")</code></pre>
+<h3>Generating Text</h3>
+<pre><code class="language-python">def generate(model, start_text, length=50, temperature=1.0):
+    """Generate text character by character."""
+    tokens = [char_to_idx[c] for c in start_text]
+    
+    for _ in range(length):
+        x = np.array(tokens[-model.max_seq_len:])
+        logits = model(x)
+        
+        # Sample from the last position
+        probs = softmax(logits[-1] / temperature)
+        next_token = np.random.choice(len(probs), p=probs)
+        tokens.append(next_token)
+    
+    return ''.join(idx_to_char[t] for t in tokens)
+
+# Try it!
+print(generate(model, "hel", length=30))</code></pre>
+<h2>What You Should See</h2>
+<p>When you run this (and you should run this), the loss will start high—around 2.5 or so, which is roughly $\ln(\text{vocab_size})$—and gradually decrease. After 100 steps with our crude numerical gradient method, you probably won&#39;t see very coherent generations. But with a proper backpropagation implementation or a framework like PyTorch, this exact architecture, trained on a larger dataset for more iterations, will learn meaningful patterns<sup><a id="footnote-ref-3" href="#footnote-3" data-footnote-ref aria-describedby="footnote-label">3</a></sup>.</p>
+<h2>From Toy to GPT</h2>
+<p>The architecture we&#39;ve built is, conceptually, the same as GPT. The differences are:</p>
+<ul>
+<li><strong>Scale</strong>: GPT-3 has 175 billion parameters. We have maybe a few thousand.</li>
+<li><strong>Data</strong>: GPT trained on hundreds of billions of tokens. We used 1,300 characters.</li>
+<li><strong>Optimization</strong>: GPT uses carefully tuned Adam with learning rate schedules. We used numerical gradients and hope.</li>
+<li><strong>Architecture tweaks</strong>: Various normalizations, different activation functions, rotary embeddings instead of absolute positions, etc.</li>
+</ul>
+<p>But the core insight—attention is all you need, stacked many times, trained to predict the next token—is exactly what we&#39;ve implemented. The rest is engineering, compute, and a lot of money.</p>
+<h2>Where to Go From Here</h2>
+<p>If you want to go further:</p>
+<ul>
+<li><strong>Port to PyTorch</strong>: Replace our manual computations with <code>torch.nn</code> modules. The architecture maps directly.</li>
+<li><strong>Add real training</strong>: Use <code>loss.backward()</code> and actual optimizers.</li>
+<li><strong>Scale up</strong>: Train on real text (Shakespeare, Wikipedia, your own writing) with more layers and dimensions.</li>
+<li><strong>Read the papers</strong>: &quot;Attention Is All You Need&quot; (2017), the GPT papers, &quot;Language Models are Few-Shot Learners&quot; (GPT-3).</li>
+</ul>
+<p>The transformer is, at this point, the foundation of nearly all modern language AI. Understanding it from first principles—as we&#39;ve done here—means you understand, at some level, the thing that&#39;s reshaping how we interact with machines<sup><a id="footnote-ref-4" href="#footnote-4" data-footnote-ref aria-describedby="footnote-label">4</a></sup>.</p>
+<p>Thanks for reading. Go build something.</p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>Why characters instead of words? Because characters require no tokenizer, no vocabulary construction, nothing but the raw bytes. It&#39;s pedagogically cleaner, even if practically you&#39;d almost always use something like BPE (Byte Pair Encoding) or the GPT tokenizer. <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>This is a terrible way to train neural networks. Each gradient estimate requires N forward passes where N is the number of parameters you&#39;re updating. Real implementations use backpropagation, which computes all gradients in a single backward pass using the chain rule. I&#39;m using numerical gradients here only because it requires no additional machinery and makes the training loop transparent. <a href="#footnote-ref-2" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
+</li>
+<li id="footnote-3">
+<p>If you want to see this actually work, port the code to PyTorch, replace the numerical gradients with real backprop (<code>loss.backward(); optimizer.step()</code>), and train on a few megabytes of text for a few minutes. You&#39;ll get a model that generates surprisingly coherent output, even at this tiny scale. <a href="#footnote-ref-3" data-footnote-backref aria-label="Back to reference 3">↩</a></p>
+</li>
+<li id="footnote-4">
+<p>Whether this is a good thing or a bad thing or just a thing is a question for another essay. The transformer doesn&#39;t care what you think about it. It just predicts the next token, over and over, until something that looks like meaning emerges from the statistical patterns. There&#39;s probably a metaphor for consciousness in there somewhere, but I&#39;ll leave that to the philosophers, or to the machines that will eventually replace them. <a href="#footnote-ref-4" data-footnote-backref aria-label="Back to reference 4">↩</a></p>
+</li>
+</ol>
+</section>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

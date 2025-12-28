@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>The Architecture of Paying Attention</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="A complete walkthrough of the transformer architecture, from embeddings to output.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+  <!-- MathJax for LaTeX equations -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
+-->
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">The Architecture of Paying Attention</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    Part 3 of 4 · Putting all the pieces together
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <p>If self-attention is the engine of the transformer, as we established last time, then what are the other parts? What&#39;s the chassis, the transmission, the inexplicable dashboard light that&#39;s been on for three months<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup>? Let&#39;s zoom out and see the whole machine.</p>
+<h2>The 30,000-Foot View</h2>
+<p>A transformer for language modeling takes a sequence of tokens and produces, for each position, a probability distribution over what token should come next. The architecture has roughly these components:</p>
+<ol>
+<li><strong>Token Embeddings</strong>: Convert discrete tokens to continuous vectors</li>
+<li><strong>Positional Encodings</strong>: Inject information about position in the sequence</li>
+<li><strong>Transformer Blocks</strong> (repeated N times):<ul>
+<li>Multi-head self-attention</li>
+<li>Feed-forward network</li>
+<li>Layer normalization</li>
+<li>Residual connections</li>
+</ul>
+</li>
+<li><strong>Output Projection</strong>: Convert vectors back to vocabulary probabilities</li>
+</ol>
+<p>Let&#39;s go through each piece.</p>
+<h2>Token Embeddings</h2>
+<p>Tokens are discrete things—integers, basically—and neural networks need continuous things they can differentiate through. So we maintain a learned embedding matrix $E$ of shape $(\text{vocab_size}, d_{\text{model}})$. To convert a token ID to a vector, we just look up its row:</p>
+<pre><code class="language-python">class TokenEmbedding:
+    def __init__(self, vocab_size, d_model):
+        # Random initialization; learned during training
+        self.embedding = np.random.randn(vocab_size, d_model) * 0.02
+    
+    def __call__(self, token_ids):
+        """
+        token_ids: array of shape (seq_len,) with integer token IDs
+        returns: array of shape (seq_len, d_model)
+        """
+        return self.embedding[token_ids]</code></pre>
+<p>Simple, right? Each row of the embedding matrix is, in some sense, what the model &quot;thinks&quot; about that token.</p>
+<h2>Positional Encodings: The Problem of Order</h2>
+<p>Here&#39;s an issue: self-attention, as we defined it, is completely permutation-invariant. If you shuffle the input sequence, you get the same output (also shuffled). But order matters in language! &quot;The dog bit the man&quot; and &quot;The man bit the dog&quot; are very different sentences<sup><a id="footnote-ref-2" href="#footnote-2" data-footnote-ref aria-describedby="footnote-label">2</a></sup>.</p>
+<p>The solution is to add positional information to the embeddings. The original transformer used sinusoidal functions:</p>
+<p>$$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+$$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$</p>
+<p>For each position $pos$ and each dimension $i$, we compute a sine or cosine with a specific frequency. The frequencies decrease geometrically with the dimension index, creating a kind of binary-ish encoding where low dimensions vary rapidly with position and high dimensions vary slowly.</p>
+<pre><code class="language-python">def positional_encoding(seq_len, d_model):
+    """
+    Generate sinusoidal positional encodings.
+    """
+    positions = np.arange(seq_len)[:, np.newaxis]  # (seq_len, 1)
+    dims = np.arange(d_model)[np.newaxis, :]       # (1, d_model)
+    
+    # Frequency for each dimension
+    angles = positions / np.power(10000, (2 * (dims // 2)) / d_model)
+    
+    # Apply sin to even indices, cos to odd indices
+    pe = np.zeros((seq_len, d_model))
+    pe[:, 0::2] = np.sin(angles[:, 0::2])
+    pe[:, 1::2] = np.cos(angles[:, 1::2])
+    
+    return pe</code></pre>
+<p>Modern models like GPT often just learn the positional embeddings directly—another embedding matrix, this time indexed by position. Both approaches work.</p>
+<h2>The Transformer Block</h2>
+<p>The real meat is in the repeated transformer blocks. Each block has two sub-layers: multi-head attention and a feed-forward network. Both use residual connections and layer normalization.</p>
+<h3>Residual Connections</h3>
+<p>A residual connection is just: $\text{output} = x + f(x)$. Instead of learning the full transformation, we learn the <em>difference</em> (residual) from the input. This helps with gradient flow during training and makes it possible to stack many layers without things degrading.</p>
+<h3>Layer Normalization</h3>
+<p>Layer norm normalizes each sample independently across its features:</p>
+<p>$$\text{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma + \epsilon} + \beta$$</p>
+<p>where $\mu$ and $\sigma$ are the mean and standard deviation computed across the feature dimension, and $\gamma$, $\beta$ are learned scale and shift parameters.</p>
+<pre><code class="language-python">class LayerNorm:
+    def __init__(self, d_model, eps=1e-6):
+        self.gamma = np.ones(d_model)
+        self.beta = np.zeros(d_model)
+        self.eps = eps
+    
+    def __call__(self, x):
+        mean = x.mean(axis=-1, keepdims=True)
+        std = x.std(axis=-1, keepdims=True)
+        return self.gamma * (x - mean) / (std + self.eps) + self.beta</code></pre>
+<h3>Feed-Forward Network</h3>
+<p>Between attention layers sits a simple two-layer MLP applied to each position independently:</p>
+<p>$$\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2$$</p>
+<p>The inner dimension is typically 4× the model dimension (so if $d_{\text{model}} = 512$, the inner dimension is 2048). This is where a lot of the model&#39;s &quot;knowledge&quot; gets stored during training<sup><a id="footnote-ref-3" href="#footnote-3" data-footnote-ref aria-describedby="footnote-label">3</a></sup>.</p>
+<pre><code class="language-python">class FeedForward:
+    def __init__(self, d_model, d_ff):
+        self.W1 = np.random.randn(d_model, d_ff) * 0.02
+        self.b1 = np.zeros(d_ff)
+        self.W2 = np.random.randn(d_ff, d_model) * 0.02
+        self.b2 = np.zeros(d_model)
+    
+    def __call__(self, x):
+        hidden = np.maximum(0, x @ self.W1 + self.b1)  # ReLU
+        return hidden @ self.W2 + self.b2</code></pre>
+<h3>Putting It Together: One Block</h3>
+<p>A single transformer block combines everything:</p>
+<pre><code class="language-python">class TransformerBlock:
+    def __init__(self, d_model, n_heads, d_ff):
+        self.attention = MultiHeadAttention(d_model, n_heads)
+        self.ffn = FeedForward(d_model, d_ff)
+        self.ln1 = LayerNorm(d_model)
+        self.ln2 = LayerNorm(d_model)
+    
+    def __call__(self, x):
+        # Attention with residual and layer norm
+        attn_out = self.attention(x)
+        x = self.ln1(x + attn_out)
+        
+        # FFN with residual and layer norm
+        ffn_out = self.ffn(x)
+        x = self.ln2(x + ffn_out)
+        
+        return x</code></pre>
+<p>Note the order: attention → add residual → normalize → FFN → add residual → normalize. This is called &quot;Post-LN.&quot; Some models use &quot;Pre-LN&quot; which puts the normalization before each sub-layer. Both work; the debates about which is better are ongoing<sup><a id="footnote-ref-4" href="#footnote-4" data-footnote-ref aria-describedby="footnote-label">4</a></sup>.</p>
+<h2>Stacking Blocks</h2>
+<p>The full transformer is just a stack of these blocks. GPT-2 small uses 12 blocks. GPT-3 uses 96. Each block refines the representations, allowing progressively more abstract features to emerge.</p>
+<pre><code class="language-python">class Transformer:
+    def __init__(self, vocab_size, d_model, n_heads, d_ff, n_layers, max_seq_len):
+        self.token_emb = TokenEmbedding(vocab_size, d_model)
+        self.pos_enc = positional_encoding(max_seq_len, d_model)
+        self.blocks = [
+            TransformerBlock(d_model, n_heads, d_ff) 
+            for _ in range(n_layers)
+        ]
+        self.output_proj = np.random.randn(d_model, vocab_size) * 0.02
+    
+    def __call__(self, token_ids):
+        seq_len = len(token_ids)
+        
+        # Embed tokens and add positional information
+        x = self.token_emb(token_ids) + self.pos_enc[:seq_len]
+        
+        # Pass through all blocks
+        for block in self.blocks:
+            x = block(x)
+        
+        # Project to vocabulary logits
+        logits = x @ self.output_proj
+        return logits</code></pre>
+<h2>Causal Masking: The Decoder&#39;s Secret</h2>
+<p>One thing we haven&#39;t discussed: for language modeling (predicting the next token), we need to prevent the model from &quot;cheating&quot; by looking at future tokens. The solution is causal masking—we modify the attention scores to set future positions to $-\infty$ before the softmax:</p>
+<pre><code class="language-python">def causal_mask(seq_len):
+    """Lower triangular mask for causal attention."""
+    mask = np.triu(np.ones((seq_len, seq_len)), k=1)
+    mask[mask == 1] = -np.inf
+    return mask
+
+# In attention: scores = scores + causal_mask(seq_len)</code></pre>
+<p>This ensures that position $i$ can only attend to positions $\leq i$. The model learns to predict token $i+1$ from tokens $1 \ldots i$.</p>
+<h2>What Have We Built?</h2>
+<p>We now have all the pieces of a decoder-only transformer (like GPT):</p>
+<ul>
+<li>Token embeddings to convert IDs to vectors</li>
+<li>Positional encodings to preserve order information</li>
+<li>Multi-head attention to mix information across positions</li>
+<li>Feed-forward networks to transform representations</li>
+<li>Layer normalization and residual connections for stable training</li>
+<li>Causal masking to prevent future-peeking</li>
+</ul>
+<p>In the final part, we&#39;ll put it all together into a complete, runnable implementation—a toy language model that can actually learn to predict characters. The code won&#39;t be efficient, but it&#39;ll be clear.</p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>The check engine light of deep learning is the loss curve that starts out looking great and then mysteriously plateaus or, worse, starts climbing. When this happens you check: the learning rate, the batch size, the data preprocessing, the initialization scheme, whether you accidentally left dropout at 0.9 instead of 0.1, etc. Often the answer is embarrassingly simple. Sometimes it&#39;s not. <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>Though both describe regrettable incidents of biting. <a href="#footnote-ref-2" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
+</li>
+<li id="footnote-3">
+<p>There&#39;s been interesting research suggesting that the FFN layers act as a kind of key-value memory. Each row of $W_1$ is a &quot;key&quot; that matches certain input patterns, and the corresponding row of $W_2$ is the &quot;value&quot; that gets added to the output. This gives some insight into how factual knowledge gets encoded (and why it&#39;s so hard to reliably edit or remove). <a href="#footnote-ref-3" data-footnote-backref aria-label="Back to reference 3">↩</a></p>
+</li>
+<li id="footnote-4">
+<p>Pre-LN tends to be more stable during training, allowing for higher learning rates. Post-LN (the original formulation) can achieve slightly better final performance with careful tuning. The fact that both work, and the reasons why are subtle, tells you something about how much of deep learning is still empirical alchemy. <a href="#footnote-ref-4" data-footnote-backref aria-label="Back to reference 4">↩</a></p>
+</li>
+</ol>
+</section>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

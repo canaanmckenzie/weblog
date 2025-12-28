@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>404 Not Found</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="Page not found">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="error-page">
+    <!-- 
+404 ERROR PAGE
+Simple, helpful, and on-brand error page.
+-->
+<div class="post-wrapper" style="text-align: center; padding-top: 4rem;">
+    <h1 style="font-size: 4rem; margin-bottom: 1rem;">404</h1>
+    <div id="icon-404" style="margin: 2rem auto;"></div>
+    <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+        It seems you've wandered off the path.
+    </p>
+    <a href="/" style="font-size: 1.1rem;">Return to the Garden</a>
+</div>
+
+<script>
+    // Draw a confused squiggle icon if rough.js is available
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof rough !== 'undefined') {
+            const container = document.getElementById('icon-404');
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            container.appendChild(canvas);
+
+            const rc = rough.canvas(canvas);
+            // specific sketchy 404 art
+            rc.circle(50, 50, 80, { roughness: 2.5, stroke: '#333', strokeWidth: 2 });
+            rc.line(30, 30, 70, 70, { roughness: 2, stroke: '#333' });
+            rc.line(70, 30, 30, 70, { roughness: 2, stroke: '#333' });
+        }
+    });
+</script>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>

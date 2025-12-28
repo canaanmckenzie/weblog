@@ -1,0 +1,775 @@
+/* =============================================
+   INK DREAMS — Hand-Drawn Minimalist Aesthetic
+   Inspired by Ink & Switch and Hundred Rabbits
+   ============================================= */
+
+/* --- CSS Custom Properties (Design Tokens) --- */
+:root {
+    /* Colors - Paper-like, high contrast */
+    --bg-color: #fcfcfc;
+    --bg-grey: #f5f5f5;
+    --text-color: #1a1a1a;
+    --text-faded: #777;
+    --text-muted: #999;
+    --accent-highlight: rgba(255, 220, 100, 0.35);
+
+    /* Annotation blending */
+    --ink-blend: multiply;
+
+    /* Typography */
+    --font-serif: 'Merriweather', Georgia, serif;
+    --font-sans: 'Merriweather Sans', system-ui, sans-serif;
+
+    /* Spacing & Layout - tighter, less white space */
+    --page-width: 62rem;
+    --rem: 1rem;
+    --gap: calc(var(--rem) * 1.5);
+    --section-gap: calc(var(--rem) * 3.5);
+
+    /* Reading optimization */
+    --line-height: 1.65;
+    --paragraph-spacing: 1.2em;
+}
+
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 18px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: var(--line-height);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+
+    /* Subtle paper texture feel */
+    background-image:
+        radial-gradient(ellipse at 20% 30%, rgba(0, 0, 0, 0.01) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(0, 0, 0, 0.01) 0%, transparent 50%);
+}
+
+/* --- Typography --- */
+h1,
+h2,
+h3 {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    line-height: 1.3;
+}
+
+h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--gap);
+}
+
+h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: calc(var(--gap) * 1.5);
+    color: var(--text-color);
+}
+
+h3 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+}
+
+p {
+    margin-bottom: var(--paragraph-spacing);
+    max-width: 65ch;
+    /* Optimal reading width */
+}
+
+/* --- Links with \"Markered\" Underlines --- */
+/* Underlines are generated programmatically via JS for unique, non-clipping results */
+a {
+    color: var(--text-color);
+    text-decoration: none;
+    position: relative;
+    display: inline-block;
+    /* Required for background to show */
+
+    /* Base styles - JS will inject the background-image */
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 8px;
+    padding-bottom: 2px;
+
+    transition: background-size 0.15s ease;
+}
+
+a:hover {
+    background-size: 100% 10px;
+}
+
+/* Logo should not have underline */
+.nav-logo {
+    background-image: none !important;
+    padding-bottom: 0;
+    display: inline;
+}
+
+/* --- Layout --- */
+main {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    padding: var(--gap);
+}
+
+.blog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.centered-list {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--gap);
+}
+
+.centered-list .blog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.centered-list .blog-list a {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.fixed-footer {
+    position: fixed;
+    left: auto;
+    right: 1.25rem;
+    bottom: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    z-index: 10;
+    opacity: 0.6;
+    letter-spacing: 0.02em;
+    text-align: right;
+}
+
+.fixed-footer a {
+    color: var(--text-muted);
+}
+
+.fixed-footer a:hover {
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.post-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--gap);
+}
+
+.post-wrapper {
+    position: relative;
+    max-width: 70ch;
+}
+
+.back-arrow {
+    position: absolute;
+    left: -120px;
+    top: 0.35rem;
+    width: 120px;
+    height: 60px;
+    display: block;
+    background-image: none !important;
+    padding-bottom: 0;
+}
+
+.back-arrow canvas {
+    display: block;
+}
+
+@media (max-width: 720px) {
+    .back-arrow {
+        position: static;
+        margin-bottom: 1rem;
+    }
+}
+
+.section {
+    padding: var(--section-gap) 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.section:last-of-type {
+    border-bottom: none;
+}
+
+/* --- Header & Navigation --- */
+.site-header {
+    padding: var(--gap);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.nav {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    background: none !important;
+    padding-bottom: 0;
+}
+
+.nav-links {
+    display: flex;
+    gap: var(--gap);
+}
+
+.nav-links a {
+    font-size: 0.9rem;
+    color: var(--text-faded);
+    display: inline-block;
+    padding-bottom: 8px;
+    background-size: 100% 10px;
+}
+
+.nav-links a:hover {
+    color: var(--text-color);
+    background-size: 100% 10px;
+}
+
+/* --- Hero Section --- */
+.hero {
+    padding: calc(var(--section-gap) * 1.1) 0;
+    text-align: left;
+}
+
+.hero h1 {
+    max-width: 20ch;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-faded);
+    max-width: 55ch;
+}
+
+/* --- Content Block --- */
+.content-block {
+    max-width: 45rem;
+}
+
+.content-block p {
+    font-size: 1.05rem;
+}
+
+/* --- Research Grid --- */
+.research-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--gap);
+}
+
+.research-card {
+    padding: var(--gap);
+    background: var(--bg-grey);
+    border-radius: 4px;
+    position: relative;
+
+    /* Subtle hand-drawn border effect */
+    box-shadow:
+        inset 1px 1px 0 rgba(0, 0, 0, 0.03),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.03);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+}
+
+.card-icon canvas {
+    display: block;
+}
+
+.research-card h3 {
+    font-family: var(--font-serif);
+}
+
+.research-card p {
+    font-size: 0.95rem;
+    color: var(--text-faded);
+    margin-bottom: 1rem;
+}
+
+.card-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* --- Project List --- */
+.project-list {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--gap) * 1.5);
+}
+
+.project-item {
+    padding-bottom: calc(var(--gap) * 1.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.project-item:last-child {
+    border-bottom: none;
+}
+
+/* Hide the "Footnotes" title/separator */
+.footnotes h2,
+.footnotes hr {
+    display: none;
+}
+
+.footnotes ol {
+    padding-left: 1.5rem;
+    margin: 0;
+}
+
+.footnotes a {
+    text-decoration: none;
+    background-image: none;
+}
+
+.project-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.04);
+    padding: 0.25em 0.6em;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.project-item h3 {
+    margin-bottom: 0.5rem;
+}
+
+.project-item h3 a {
+    font-family: var(--font-serif);
+}
+
+.project-item p {
+    color: var(--text-faded);
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+/* --- Quote Section --- */
+.section-quote {
+    text-align: center;
+    padding: var(--section-gap) var(--gap);
+}
+
+blockquote {
+    max-width: 40rem;
+    margin: 0 auto;
+}
+
+blockquote p {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    max-width: none;
+}
+
+blockquote footer {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* --- Footer --- */
+.site-footer {
+    padding: calc(var(--section-gap) * 0.7) var(--gap);
+    background: var(--bg-grey);
+    text-align: center;
+}
+
+.footer-content {
+    max-width: var(--page-width);
+    margin: 0 auto;
+}
+
+.footer-content p {
+    margin-bottom: 0.5rem;
+    max-width: none;
+}
+
+.footer-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* --- Ink Splatter Decorations --- */
+/* Ink splatters removed per user request */
+.ink-splatter {
+    display: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+
+    .nav {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .hero {
+        padding: var(--section-gap) 0;
+    }
+
+    .ink-splatter {
+        display: none;
+    }
+}
+
+/* --- Consistent Page Layout --- */
+.page-container,
+.centered-list,
+.post-page,
+.hero {
+    margin: 0 auto;
+    max-width: var(--page-width);
+    padding-top: calc(var(--section-gap) * 2);
+    /* Consistent top starting point */
+    padding-left: var(--gap);
+    padding-right: var(--gap);
+    padding-bottom: var(--section-gap);
+    min-height: 80vh;
+    /* Ensure footer pushes down */
+}
+
+/* Specific tweaks but maintaining the top padding anchor */
+.centered-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Vertically centering might clash with consistent top, 
+       so we relax 'center' and just rely on top margin for stability. */
+    justify-content: flex-start;
+}
+
+/* Remove old conflicting paddings */
+.post-header {
+    margin-bottom: var(--gap);
+    text-align: center;
+}
+
+::selection {
+    background: var(--accent-highlight);
+}
+
+/* --- Focus States (Accessibility) --- */
+a:focus-visible {
+    outline: 2px solid var(--text-color);
+    outline-offset: 4px;
+}
+
+/* --- Print Styles --- */
+@media print {
+
+    .ink-splatter,
+    .nav-links {
+        display: none;
+    }
+
+    body {
+        background: white;
+    }
+
+    a {
+        background: none;
+        text-decoration: underline;
+    }
+}
+
+/* --- Rough Notation Styling --- */
+svg.rough-annotation {
+    mix-blend-mode: multiply;
+}
+
+/* =============================================
+   CODE SYNTAX HIGHLIGHTING (Verdandi / VS Code Light)
+   ============================================= */
+
+/* Code block container */
+pre[class*="language-"] {
+    background: #fcfcfc;
+    color: #333333;
+    font-family: 'Fira Code', 'Source Code Pro', Consolas, Monaco, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+    overflow-x: auto;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* Subtle paper-like border */
+}
+
+/* Inline code */
+code:not([class*="language-"]) {
+    background: rgba(0, 0, 0, 0.04);
+    color: #090909;
+    font-family: 'Fira Code', 'Source Code Pro', Consolas, Monaco, monospace;
+    font-size: 0.88em;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Tokens - VS Code Light / Verdandi inspired */
+.token.comment,
+.token.block-comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #008000;
+    font-style: italic;
+}
+
+.token.punctuation {
+    color: #333333;
+}
+
+.token.tag,
+.token.attr-name,
+.token.namespace,
+.token.deleted {
+    color: #800000;
+}
+
+.token.function-name {
+    color: #795E26;
+}
+
+.token.boolean,
+.token.number,
+.token.function {
+    color: #098658;
+}
+
+.token.property,
+.token.class-name,
+.token.constant,
+.token.symbol {
+    color: #001080;
+}
+
+.token.selector,
+.token.important,
+.token.atrule,
+.token.keyword,
+.token.builtin {
+    color: #0000ff;
+}
+
+.token.string,
+.token.char,
+.token.attr-value,
+.token.regex,
+.token.variable {
+    color: #a31515;
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+    color: #333333;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+.token.inserted {
+    color: #098658;
+}
+
+/* Line numbers (optional) */
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.5em;
+    counter-reset: linenumber;
+}
+
+/* =============================================
+   MATHJAX STYLING
+   ============================================= */
+
+/* Block equations */
+.math-block,
+mjx-container[display="true"] {
+    display: block;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+}
+
+/* Inline math */
+mjx-container:not([display="true"]) {
+    display: inline;
+}
+
+/* Equation numbering (if used) */
+.equation-number {
+    float: right;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* =============================================
+   DFW-STYLE FOOTNOTES & REFINEMENTS
+   ============================================= */
+
+/* 
+  Footnote Reference (Superscript in text)
+  The goal here is subtle indication without breaking the reading flow.
+  We remove the default hand-drawn underline for these small numbers
+  to keep them clean.
+*/
+.footnote-ref {
+    font-size: 0.75em;
+    vertical-align: super;
+    line-height: 0;
+    text-decoration: none;
+    background-image: none !important;
+    color: var(--text-muted);
+    /* Greyed out reference in text body */
+    font-weight: 500;
+    padding: 0 0.1em;
+}
+
+.footnote-ref:hover {
+    color: var(--text-faded);
+}
+
+/* 
+  Footnotes Section (Bottom of Page)
+  The container for all the footnotes. We want this to be
+  distinct from the body text - distinct enough to be ignored,
+  but legible when sought out.
+*/
+.footnotes {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.85rem;
+    /* Slightly smaller font as requested */
+    line-height: 1.6;
+    color: var(--text-muted);
+    /* Greyed out text for footnote body */
+}
+
+/* 
+  Hide the "Footnotes" title and separator.
+  The marked-footnote plugin auto-generates an <h2> and <hr>.
+  We hide these to keep the semantic structure minmal and let the
+  border-top of the .footnotes class define the section.
+*/
+.footnotes h2,
+.footnotes hr {
+    display: none;
+}
+
+.footnotes ol {
+    padding-left: 1.5rem;
+    margin: 0;
+}
+
+/* Remove underlines from the links in the footer to keep it quiet */
+.footnotes a {
+    text-decoration: none;
+    background-image: none;
+}
+
+.footnotes li {
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
+}
+
+.footnotes li::marker {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Back-to-text link */
+.footnote-backref {
+    font-size: 0.8em;
+    margin-left: 0.25em;
+    text-decoration: none;
+    background-image: none !important;
+    color: var(--text-muted);
+}
+
+.footnote-backref:hover {
+    color: var(--text-color);
+    background-image: none !important;
+}
+
+/* Nested footnotes (DFW-style sub-footnotes) */
+.footnotes .footnotes {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed rgba(0, 0, 0, 0.06);
+    font-size: 0.95em;
+}

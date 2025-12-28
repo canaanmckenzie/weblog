@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title - displayed in browser tab -->
+  <title>Consider the Transformer</title>
+
+  <!-- SEO meta description - shown in search results -->
+  <meta name="description" content="An introduction to transformer architecture, or: why machines learned to pay attention.">
+
+  <!-- 
+  TYPOGRAPHY: Merriweather Font Family
+  We use two variants from Google Fonts:
+  - Merriweather (serif): For headings and emphasis
+  - Merriweather Sans: For body text and UI elements
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Merriweather+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 
+  STYLESHEET: All visual styling lives in styles.css
+  This includes colors, layout, typography scales, and component styles
+  -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- 
+  ROUGH.JS: Library for creating "hand-drawn" graphics
+  Used for:
+  - Procedural underlines on links (each one unique!)
+  - The sketchy back arrow on post pages
+  - Any other hand-drawn decorative elements
+  -->
+  <script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+
+  
+  <!-- MathJax for LaTeX equations -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+</head>
+
+<body>
+  <!-- 
+  MAIN CONTENT AREA
+  The body_class placeholder allows different page types to have different layouts:
+  - "centered-list" for index page (content centered vertically)
+  - "post-page" for blog posts (standard article layout)
+  - "hero" for the about page
+  -->
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
+-->
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Consider the Transformer</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    Part 1 of 4 · An introduction, or: why machines learned to pay attention
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <p>Here is something that you probably already know but which bears stating anyway, in the manner of all good lectures<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup>: the transformer architecture, which is the thing that makes ChatGPT and Claude and all the other AI assistants possible, is fundamentally a machine that has learned to <em>pay attention</em>. And I don&#39;t mean this in some loose metaphorical sense, like how we say a thermostat &quot;wants&quot; to keep the room at 72 degrees. I mean that attention—the focusing of computational resources on the parts of an input that matter most for the task at hand—is literally the central mechanism around which the whole thing is built.</p>
+<p>The name itself, &quot;transformer,&quot; sounds vaguely Optimus Prime-ish, but it comes from the 2017 paper <em>Attention Is All You Need</em><sup><a id="footnote-ref-2" href="#footnote-2" data-footnote-ref aria-describedby="footnote-label">2</a></sup>, and what the researchers at Google were transforming was the dominant paradigm for processing sequences of things—words, tokens, symbols, whatever. Before transformers, we had recurrent neural networks (RNNs)<sup><a id="footnote-ref-3" href="#footnote-3" data-footnote-ref aria-describedby="footnote-label">3</a></sup>, which processed sequences the way you or I might read a sentence: one word at a time, left to right, accumulating meaning as we go.</p>
+<h2>The Tyranny of Sequential Processing</h2>
+<p>The problem with RNNs, and this is crucial, is that they suffer from what you might call the tyranny of sequential processing. If you want to understand how the word at position 500 in a document relates to the word at position 3, the network has to iterate through all 497 intervening positions, each time squeezing the accumulated &quot;understanding&quot; through a relatively narrow bottleneck of hidden state. Information gets degraded. Gradients vanish or explode during training. Long-range dependencies—which is just a fancy way of saying &quot;how words far apart in a sentence relate to each other&quot;—become very hard to model.</p>
+<p>Consider the sentence: &quot;The cat that the dog that the man owned chased ran away.&quot; The grammatical subject of &quot;ran away&quot; is &quot;cat,&quot; but there are seven words between them. An RNN trying to connect these distant buddies has to pass information through the entire intervening mess, and by the time it gets there, the signal has often degraded into noise.</p>
+<h2>Enter Attention</h2>
+<p>What the transformer does instead is almost embarrassingly simple once you see it: it allows every position in the sequence to directly attend to every other position. No sequential processing required. No information bottleneck. The word &quot;cat&quot; can directly look at the word &quot;ran&quot; and say, in effect, &quot;Hey, I think we&#39;re related.&quot;</p>
+<p>Mathematically, what this looks like is a weighted sum. For each position in the sequence, we compute how much attention it should pay to every other position, and then we take a weighted combination of all the values based on those attention weights. If this sounds vague, don&#39;t worry—Part 2 will get into the grisly details. For now, the intuition is what matters.</p>
+<p>The attention mechanism computes something called a <strong>compatibility score</strong> between positions. Positions that are &quot;compatible&quot; (relevant to each other) get high scores; positions that aren&#39;t get low scores. These scores become weights, and the weights determine how much each position contributes to the output representation of every other position.</p>
+<p>Here&#39;s a taste of what the math looks like, just to set the table for later:</p>
+<p>$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$</p>
+<p>Don&#39;t panic. $Q$, $K$, and $V$ stand for Query, Key, and Value—three matrices that are computed from the input. The softmax ensures our attention weights sum to 1. The $\sqrt{d_k}$ is a scaling factor that keeps the numbers from getting too big. We&#39;ll unpack all of this in the next installment.</p>
+<h2>Why This Matters</h2>
+<p>The shift from RNNs to transformers is not just a technical improvement; it&#39;s a conceptual one. RNNs model language as a <em>process</em>—a left-to-right traversal through time. Transformers model language as a <em>structure</em>—a web of relationships between positions, all computed in parallel.</p>
+<p>This parallelism is also why transformers are so well-suited to modern GPUs, which are designed to do many small computations simultaneously rather than a few large ones sequentially. It&#39;s one of those happy accidents where a theoretical insight (attention is all you need) happens to align perfectly with the available hardware. Or maybe it&#39;s not an accident at all<sup><a id="footnote-ref-4" href="#footnote-4" data-footnote-ref aria-describedby="footnote-label">4</a></sup>.</p>
+<p>In the next part, we&#39;ll dive into the self-attention mechanism itself—the engine that drives the whole thing. We&#39;ll look at queries, keys, and values; we&#39;ll work through the math; and we&#39;ll write some actual Python code that implements attention from scratch. Stay tuned.</p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>The great irony of lectures is that the things most worth stating explicitly are often the things the lecturer assumes everyone already knows, and the things that get the most elaborate explanations are often the things that could have been left as exercises for the reader. This footnote itself is probably an example of the latter. <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>Vaswani, A., et al. (2017). &quot;Attention Is All You Need.&quot; <em>Advances in Neural Information Processing Systems</em>. The paper&#39;s title is memorable precisely because it sounds like the kind of thing a meditation guru would say, and yet it turns out to be a fairly accurate technical description. The full transformer architecture, while elegant, involves considerably more machinery than just attention—layer normalization, residual connections, positional encodings, feed-forward networks—but attention is indeed the core innovation. <a href="#footnote-ref-2" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
+</li>
+<li id="footnote-3">
+<p>And their fancier cousins, LSTMs (Long Short-Term Memory networks), which were specifically designed to address the vanishing gradient problem that plagued vanilla RNNs. LSTMs were, for about a decade, the state of the art for sequence modeling tasks like machine translation and speech recognition. They&#39;re ingeniously designed, with gates that control the flow of information through time, and there&#39;s something almost poignant about how quickly they were supplanted by the simpler, more parallelizable transformer. <a href="#footnote-ref-3" data-footnote-backref aria-label="Back to reference 3">↩</a></p>
+</li>
+<li id="footnote-4">
+<p>There&#39;s a whole philosophy of science question lurking here about whether the ideas that succeed are the ones that happen to fit the tools we have, or whether we&#39;re genuinely converging on The Right Way To Do Things. The cynical view is that transformers won because GPUs are good at matrix multiplication, not because attention is a fundamental truth about intelligence. The optimistic view is that the universe really is organized around certain principles (parallelism, sparse connectivity, hierarchical abstraction) and we&#39;re discovering them. I leave this to the reader&#39;s own philosophical inclinations. <a href="#footnote-ref-4" data-footnote-backref aria-label="Back to reference 4">↩</a></p>
+</li>
+</ol>
+</section>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
+  </main>
+
+  <!-- 
+  FIXED FOOTER
+  Pinned to bottom-right corner on all pages
+  Contains copyright and navigation link
+  -->
+  <div class="fixed-footer">
+    <span>© Canaan McKenzie</span>
+    <a href="/about.html">About</a>
+  </div>
+
+  <!-- 
+  SCRIPT.JS: Interactive behavior
+  Must load AFTER the DOM is ready (placed at end of body)
+  Handles:
+  - Generating unique hand-drawn underlines for every link
+  - Drawing the sketchy back arrow on post pages
+  - Any future interactive features
+  -->
+  <script src="/script.js"></script>
+</body>
+
+</html>
