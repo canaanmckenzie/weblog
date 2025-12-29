@@ -357,10 +357,10 @@ function formatPostDate(value) {
 
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const weekday = weekdays[date.getDay()] || '';
-    const month = months[date.getMonth()] || '';
-    const day = date.getDate();
-    const year = String(date.getFullYear()).slice(-2);
+    const weekday = weekdays[date.getUTCDay()] || '';
+    const month = months[date.getUTCMonth()] || '';
+    const day = date.getUTCDate();
+    const year = String(date.getUTCFullYear()).slice(-2);
 
     return `${weekday} ${month} ${day} '${year}`.trim();
 }
