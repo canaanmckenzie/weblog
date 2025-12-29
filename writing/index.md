@@ -1,5 +1,5 @@
 ---
-title: "Ink Dreams - Notes"
-description: "Notes and essays in a hand-drawn aesthetic."
+title: "Bibliotheca Babelis"
+description: "Antediluvian Field Notes"
 template: index
 ---

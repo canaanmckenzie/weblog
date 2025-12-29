@@ -7,10 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Page title - displayed in browser tab -->
-  <title>Bibliotheca Babelis</title>
+  <title>Books</title>
 
   <!-- SEO meta description - shown in search results -->
-  <meta name="description" content="Antediluvian Field Notes">
+  <meta name="description" content="">
 
   <!-- 
   TYPOGRAPHY: Merriweather Font Family
@@ -51,25 +51,74 @@
   - "post-page" for blog posts (standard article layout)
   - "hero" for the about page
   -->
-  <main class="centered-list">
-    <!--
-BLOG LIST
-Uses .blog-list class for styling (no bullets, proper spacing)
-Each link gets a unique hand-drawn underline via script.js
+  <main class="post-page">
+    <!-- 
+POST WRAPPER
+Contains all post content with constrained width for readability.
+The max-width of 70ch (70 characters) is considered optimal for reading.
 -->
-<ul class="blog-list">
-      <li class="post-list-item"><span class="post-date">Sat Dec 27 '25</span><a href="posts/Booklist/">Books</a></li>
-  <li class="post-list-item"><span class="post-date">Sat Dec 27 '25</span><a href="posts/The-World-Well-Lost/">The World Well Lost</a></li>
-  <li class="post-list-item"><span class="post-date">Sat Dec 27 '25</span><a href="posts/transformer-1-consider/">Consider the Transformer</a></li>
-  <li class="post-list-item"><span class="post-date">Sat Dec 27 '25</span><a href="posts/transformer-2-attention/">Attention, Please</a></li>
-  <li class="post-list-item"><span class="post-date">Sat Dec 27 '25</span><a href="posts/transformer-3-architecture/">The Architecture of Paying Attention</a></li>
-  <li class="post-list-item"><span class="post-date">Sat Dec 27 '25</span><a href="posts/transformer-4-toy/">A Toy Example</a></li>
-  <li class="post-list-item"><span class="post-date">Tue Jan 14 '25</span><a href="posts/ai-sincerity/">Sincerity, Automation, and the Terror of Ease</a></li>
-  <li class="post-list-item"><span class="post-date">Sat Jan 11 '25</span><a href="posts/ai-attention/">Artificial Intelligence and the Economy of Attention</a></li>
-  <li class="post-list-item"><span class="post-date">Thu Jan 9 '25</span><a href="posts/ai-politeness/">On the Politeness of Machines</a></li>
-  <li class="post-list-item"><span class="post-date">Mon Jan 6 '25</span><a href="posts/writing-theory-attention/">Writing Theory and the Blue-Collar Life of Attention</a></li>
-  <li class="post-list-item"><span class="post-date">Thu Jan 2 '25</span><a href="posts/writing-theory-voice/">Footnotes Toward a Theory of Voice</a></li>
+<div class="post-wrapper">
+
+  <!-- 
+  BACK ARROW
+  A link back to the index page. The actual arrow is drawn by JavaScript
+  using rough.js - this creates the hand-drawn aesthetic.
+  
+  How it works:
+  1. This <a> element is empty (no visible text/content)
+  2. script.js finds elements with class "back-arrow"
+  3. It creates a <canvas> element inside
+  4. rough.js draws a sketchy arrow on the canvas
+  5. CSS positions it to the left of the title
+  -->
+  <a class="back-arrow" href="/index.html" aria-label="Back to notes"></a>
+
+  <!-- 
+  POST HEADER
+  Title uses inline styles for specific sizing.
+  These could be moved to CSS classes for cleaner separation.
+  -->
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Books</h1>
+
+  <!-- 
+  SUBTITLE
+  Shows series information ("Part 1 of 4") and/or a tagline.
+  Uses the --text-faded color for visual hierarchy.
+  -->
+  <p class="hero-subtitle" style="font-size: 1.1rem; color: var(--text-faded);">
+    
+  </p>
+
+  <!-- 
+  ARTICLE BODY
+  The main content of the post, converted from markdown.
+  
+  IMPORTANT: The markdown converter handles:
+  - Paragraphs → <p> tags
+  - Headers → <h2>, <h3> (h1 is reserved for title)
+  - Code blocks → <pre><code class="language-xxx">
+  - Math → $...$ for inline, $$...$$ for display
+  - Footnote refs → <a class="footnote-ref">
+  -->
+  <article style="max-width: 70ch; line-height: 1.7;">
+    <ul>
+<li>Habermas and the foundations of critical theory &mdash; <em>Rick Roderick</em></li>
 </ul>
+
+
+    <!-- 
+    FOOTNOTES SECTION
+    Only included if the post has footnotes.
+    Uses DFW-style footnotes (verbose, essayistic asides).
+    
+    The markdown format for footnotes:
+    [^1]: This is a footnote that appears at the bottom.
+    
+    In the text: Here is a claim[^1] that needs elaboration.
+    -->
+    
+  </article>
+</div>
   </main>
 
   <!-- 
